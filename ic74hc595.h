@@ -1,7 +1,7 @@
 /**
  * @file ic74hc595.h
  * @author Jaime Albuquerque (jaime.albq@gmail.com)
- * @brief Output serializer
+ * @brief Output shifter register library
  * @version 0.1
  * @date 2022-09-27
  * 
@@ -9,12 +9,14 @@
  * 
  */
 
-#if !defined(_ic74hc595_H_)
-#define _ic74hc595_H_
-
-#if defined(IDF_VER) // Settings for ESP-IDF
+#if !defined(_IC74HC595_H_)
+#define _IC74HC595_H_
 
 #include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+
+#if defined(IDF_VER) // Settings for ESP-IDF
 
 #include "driver/gpio.h"
 #include "esp32/rom/ets_sys.h"
@@ -26,8 +28,8 @@
 #endif // IDF_VER
 
 typedef struct {
-	unsigned char num_reg;		// Number of shift registers
-	unsigned char *reg_value;	// Last value of the registers
+	uint8_t num_reg;	// Number of shift registers
+	uint8_t *reg_value;	// Last value of all registers
 
 	// GPIO
 	struct pin {
@@ -36,10 +38,14 @@ typedef struct {
 		gpio_num_t clk;
 		gpio_num_t signal;
 		gpio_num_t latch;
-#endif // IDF_VER
+#else // IDF_VER
+		uint8_t clk;
+		uint8_t signal;
+		uint8_t latch;
+#endif // Generic
 
 	} pin;
-} ic74hc595_t;
+} shift_reg_config_t;
 
 /**
  * @brief Initialize the microcontroller to do the output
@@ -47,7 +53,15 @@ typedef struct {
  * @param shft 
  * @return < 0 means error
  */
-signed char ic74hc595_init(ic74hc595_t *shft);
+int8_t ic74hc595_init(shift_reg_config_t *shft);
+
+/**
+ * @brief
+ * 
+ * @param shft 
+ * @return int8_t 
+ */
+int8_t ic74hc595_deinit(shift_reg_config_t *shft);
 
 /**
  * @brief Send the whole data
@@ -55,25 +69,25 @@ signed char ic74hc595_init(ic74hc595_t *shft);
  * @param data 
  * @param len 
  * @param shft 
- * @return signed char 
+ * @return -1 = data longer than number of registers; 1 = successfully sent
  */
-signed char ic74hc595_send(char *data, unsigned char len, ic74hc595_t *shft);
+int8_t ic74hc595_send(uint8_t *data, uint8_t len, shift_reg_config_t *shft);
 
 /**
  * @brief Send 1 byte at a time
  * 
  * @param data 
  * @param shft 
- * @return signed char 
+ * @return int8_t 
  */
-signed char ic74hc595_send8bits(char data, ic74hc595_t *shft);
+int8_t ic74hc595_send8bits(uint8_t data, shift_reg_config_t *shft);
 
 /**
  * @brief Latch the registers
  * 
  * @param shft 
- * @return signed char 
+ * @return int8_t 
  */
-signed char ic74hc595_latch(ic74hc595_t *shft);
+int8_t ic74hc595_latch(shift_reg_config_t *shft);
 
-#endif // _ic74hc595_H_
+#endif // _IC74HC595_H_

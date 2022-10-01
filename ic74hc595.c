@@ -1,7 +1,7 @@
 /**
  * @file ic74hc595.c
  * @author Jaime Albuquerque (jaime.albq@gmail.com)
- * @brief 
+ * @brief Output shifter register library
  * @version 0.1
  * @date 2022-09-27
  * 
@@ -11,8 +11,11 @@
 
 #include "ic74hc595.h"
 
-signed char ic74hc595_init(ic74hc595_t *shft)
+int8_t ic74hc595_init(shift_reg_config_t *shft)
 {
+	shft->reg_value = (uint8_t *) malloc(shft->num_reg);	// Create an array with all registers
+	memset(shft->reg_value, 0, shft->num_reg);		// Start all registers as 0
+
 #if defined(IDF_VER)
 
 	gpio_config_t *io_conf = (gpio_config_t *) malloc(sizeof(gpio_config_t));
@@ -62,18 +65,28 @@ signed char ic74hc595_init(ic74hc595_t *shft)
 	return -1;
 }
 
-signed char ic74hc595_send(char *data, unsigned char len, ic74hc595_t *shft)
+int8_t ic74hc595_deinit(shift_reg_config_t *shft)
 {
-	for (unsigned char i = 0; i < len; i++) {
+	free(shft->reg_value);
+
+	return 1;
+}
+
+int8_t ic74hc595_send(uint8_t *data, uint8_t len, shift_reg_config_t *shft)
+{
+	if (len > shft->num_reg) return -1;
+
+	for (uint8_t i = 0; i < len; i++) {
 		ic74hc595_send8bits(data[i], shft);
+		shft->reg_value[i] = data[i];
 	}
 
 	return 1;
 }
 
-signed char ic74hc595_send8bits(char data, ic74hc595_t *shft)
+int8_t ic74hc595_send8bits(uint8_t data, shift_reg_config_t *shft)
 {
-	for (signed char i = 7; i >= 0; i--) {
+	for (int8_t i = 7; i >= 0; i--) {
 		if ((data >> i) & 1) {
 			SETPIN(shft->pin.signal);
 		} else {
@@ -89,7 +102,7 @@ signed char ic74hc595_send8bits(char data, ic74hc595_t *shft)
 	return 1;
 }
 
-signed char ic74hc595_latch(ic74hc595_t *shft)
+int8_t ic74hc595_latch(shift_reg_config_t *shft)
 {
 	SETPIN(shft->pin.latch);
 	_DELAY_US(1);
