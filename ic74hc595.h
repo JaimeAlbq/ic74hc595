@@ -1,5 +1,5 @@
 /**
- * @file ci74hc595.h
+ * @file ic74hc595.h
  * @author Jaime Albuquerque (jaime.albq@gmail.com)
  * @brief Output serializer
  * @version 0.1
@@ -9,8 +9,8 @@
  * 
  */
 
-#if !defined(_CI74HC595_H_)
-#define _CI74HC595_H_
+#if !defined(_ic74hc595_H_)
+#define _ic74hc595_H_
 
 #if defined(IDF_VER) // Settings for ESP-IDF
 
@@ -26,19 +26,20 @@
 #endif // IDF_VER
 
 typedef struct {
-        unsigned char num_shft; // Number of shift registers
-        
-        // GPIO
-        struct pin {
-                
+	unsigned char num_reg;		// Number of shift registers
+	unsigned char *reg_value;	// Last value of the registers
+
+	// GPIO
+	struct pin {
+		
 #if defined(IDF_VER)
-                gpio_num_t clk;
-                gpio_num_t signal;
-                gpio_num_t latch;
+		gpio_num_t clk;
+		gpio_num_t signal;
+		gpio_num_t latch;
 #endif // IDF_VER
 
-        } pin;
-} ci74hc595_t;
+	} pin;
+} ic74hc595_t;
 
 /**
  * @brief Initialize the microcontroller to do the output
@@ -46,7 +47,7 @@ typedef struct {
  * @param shft 
  * @return < 0 means error
  */
-signed char ci74hc595_init(ci74hc595_t *shft);
+signed char ic74hc595_init(ic74hc595_t *shft);
 
 /**
  * @brief Send the whole data
@@ -56,7 +57,7 @@ signed char ci74hc595_init(ci74hc595_t *shft);
  * @param shft 
  * @return signed char 
  */
-signed char ci74hc595_send(char *data, unsigned char len, ci74hc595_t *shft);
+signed char ic74hc595_send(char *data, unsigned char len, ic74hc595_t *shft);
 
 /**
  * @brief Send 1 byte at a time
@@ -65,7 +66,7 @@ signed char ci74hc595_send(char *data, unsigned char len, ci74hc595_t *shft);
  * @param shft 
  * @return signed char 
  */
-signed char ci74hc595_send8bits(char data, ci74hc595_t *shft);
+signed char ic74hc595_send8bits(char data, ic74hc595_t *shft);
 
 /**
  * @brief Latch the registers
@@ -73,6 +74,6 @@ signed char ci74hc595_send8bits(char data, ci74hc595_t *shft);
  * @param shft 
  * @return signed char 
  */
-signed char ci74hc595_latch(ci74hc595_t *shft);
+signed char ic74hc595_latch(ic74hc595_t *shft);
 
-#endif // _CI74HC595_H_
+#endif // _ic74hc595_H_

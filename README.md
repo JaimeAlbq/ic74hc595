@@ -1,4 +1,4 @@
-# ci74hc595
+# ic74hc595
 Shift Register C labrary
 
 This is a generic labrari writen in C which can be easily ported to your project.
